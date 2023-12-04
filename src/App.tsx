@@ -53,6 +53,7 @@ export default function BasicDemo() {
         ref={retrunInputRef}
       >
         <InputText
+          className="w-full"
           onFocus={handleClick}
           value={departureDate}
           onChange={(e) => {
@@ -68,6 +69,7 @@ export default function BasicDemo() {
         />
 
         <InputText
+          className="w-full"
           onFocus={handleClick}
           value={returnDate}
           onChange={(e) => setReturnDate(e.target.value)}
