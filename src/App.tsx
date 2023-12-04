@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import { OverlayPanel } from "primereact/overlaypanel";
 import { Calendar } from "primereact/calendar";
 import { Nullable } from "primereact/ts-helpers";
 import { InputText } from "primereact/inputtext";
 import { formatDate } from "./helpers";
 
 export default function BasicDemo() {
+  const op = useRef(null);
+  const retrunInputRef = useRef(null);
   const [departureDate, setDepartureDate] = useState<string | undefined>();
   const [returnDate, setReturnDate] = useState<string | undefined>();
   const [date, setDate] = useState<Nullable<Date>>(null);
-
-  console.log("selectedDate", date);
 
   // default date format mm/dd/yy
   // set active days from today
@@ -19,14 +20,17 @@ export default function BasicDemo() {
   const disabledDates = disabledDateList.map((date) => new Date(date));
 
   const handleDateChage = (e: any) => {
-    console.log(e);
+    retrunInputRef.current.focus();
+
     setDate(e.value);
     setDepartureDate(formatDate(e.value[0]));
     setReturnDate(formatDate(e.value[1]));
+    if (e.value[1]) {
+      op.current.hide();
+    }
   };
 
   const dateTemplate = (date: any) => {
-    console.log("date template", date);
     if (date.today) {
       return <strong className="text-blue-200 ">{date.day}</strong>;
     }
@@ -34,32 +38,54 @@ export default function BasicDemo() {
     return date.day;
   };
 
+  console.log("Panel,STATUS", op.current);
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    op.current.show(e);
+  };
+
   return (
     <div>
-      <div className="card flex justify-content-center">
+      <div
+        className="card flex justify-content-center"
+        id="Parent"
+        ref={retrunInputRef}
+      >
         <InputText
+          onFocus={handleClick}
           value={departureDate}
-          onChange={(e) => setDepartureDate(e.target.value)}
+          onChange={(e) => {
+            console.log("e.target.value", e.target.value);
+            if (e.target.value === "") {
+              setDepartureDate(e.target.value);
+
+              return setDate(null);
+            }
+            setDepartureDate(e.target.value);
+          }}
           type="search"
         />
 
         <InputText
+          onFocus={handleClick}
           value={returnDate}
           onChange={(e) => setReturnDate(e.target.value)}
           type="search"
         />
       </div>
-
-      <Calendar
-        inline
-        value={date}
-        onChange={handleDateChage}
-        selectionMode="range"
-        disabledDates={disabledDates}
-        minDate={today}
-        numberOfMonths={2}
-        dateTemplate={dateTemplate}
-      />
+      <OverlayPanel showCloseIcon ref={op} appendTo={"self"}>
+        <Calendar
+          inline
+          value={date}
+          onChange={handleDateChage}
+          selectionMode="range"
+          disabledDates={disabledDates}
+          minDate={today}
+          numberOfMonths={2}
+          dateTemplate={dateTemplate}
+        />
+      </OverlayPanel>
     </div>
   );
 }
