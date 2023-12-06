@@ -26,15 +26,29 @@ const PortSelection = () => {
   const ports = data.data.ports;
   const areas = data.data.areas;
 
-  const defaultlist = Object.values({ ...areas, ...ports }).map((item) => {
+  const allPorts = { ...ports, ...areas };
+
+  const defaultlist = Object.values(allPorts).map((item) => {
     return item;
   });
 
   console.log("defaultlist", defaultlist);
 
   const itemTemplate = (item) => {
-    // console.log(item);
-    return <div className="flex align-items-center">{item.plaintext}</div>;
+    console.log("item", item);
+
+    if (item.arrea_name) {
+      return
+      <><div className="flex align-items-center">{item.name_el}</div>
+        <ul>{item.childs.map((child)=><li>{child.name_en}</li>)}</ul>
+      </>  
+    }
+
+    return (
+      item.name_el && (
+        <div className="flex align-items-center">{item.name_el}</div>
+      )
+    );
   };
   const search = (e) => {
     const term = e.query.toLowerCase();
@@ -45,8 +59,14 @@ const PortSelection = () => {
           (item.name_el && item.name_el.toLowerCase().includes(term)),
       )
       .map((item) => {
+        if (item.childs) {
+          const childList = item.childs.map((child) => ports[child]);
+          return { arrea_name: item.name_el, childs: childList };
+        }
         return item;
       });
+    console.log("filteredData", filteredData);
+
     setItems(filteredData);
   };
 
@@ -68,7 +88,7 @@ const PortSelection = () => {
           onFocus={handleFocus}
           onClear={handleFocus}
           onSelect={(e) => {
-            setValue(e.value.plaintext);
+            setValue(e.value.name_el);
           }}
           value={value}
           suggestions={items}
@@ -78,6 +98,7 @@ const PortSelection = () => {
           }}
         />
       </div>
+      {/* {allPorts && <div>{JSON.stringify(allPorts)}</div>} */}
     </div>
   );
 };
